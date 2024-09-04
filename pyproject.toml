@@ -31,7 +31,8 @@ dependencies = [
   "matplotlib",
   "scipy",
   "astropy",
-  "pandas"
+  "pandas",
+  "slack_sdk"
   ]
 
 [project.urls]
