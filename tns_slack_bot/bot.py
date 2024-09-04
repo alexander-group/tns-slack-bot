@@ -89,7 +89,7 @@ Name: {row.name_prefix} {row['name']}
         
         return out
 
-    def send_slack_message(self, chan="testing", uname="TNS TDE Bot"):
+    def send_slack_message(self, chan=CHANNEL, uname=BOT_NAME):
         todays_new_data = self.filter_daily_data()
         msg = self.generate_slack_message(todays_new_data)
         self.chat_postMessage(channel=chan, text=msg, username=uname)

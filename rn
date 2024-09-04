@@ -1,0 +1,4 @@
+#!/bin/bash
+
+source /home/nfranz/.bashrc
+python3 /home/nfranz/alexander-group/tns-slack-bot/runbot.py -dt $1
