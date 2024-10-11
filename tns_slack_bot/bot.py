@@ -200,11 +200,15 @@ class TNSSlackBot(WebClient):
         msg = msg1 + "\n" + msg2
 
         if len(msg1) == 0 and len(msg2) == 0:
-            msg = f"No new TNS updates from the past {int(self.dt.value)} days!"
+            logger.info(
+                f"No new TNS updates from the past {int(self.dt.value)} days!"
+            )
+            return
 
         logger.info(msg)
         if test:
             print(msg)
             return
+
         self.chat_postMessage(channel=chan, text=msg, username=uname)
         
