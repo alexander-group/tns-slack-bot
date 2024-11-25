@@ -9,10 +9,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 def main():
+
+    FILE_DIR = os.path.dirname(os.path.realpath(__file__))
     
     p = argparse.ArgumentParser()
-    p.add_argument("--delta_t", "-dt", required=False, help="The delta time in days to filter by", default=1)
-    p.add_argument("--outfile", "-o", required=False, help="The filepath to write the TNS dataset to", default="tns_public_objects.csv")
+    p.add_argument(
+        "--delta_t", "-dt",
+        required=False,
+        help="The delta time in days to filter by",
+        default=1
+    )
+    p.add_argument(
+        "--outfile", "-o",
+        required=False,
+        help="The filepath to write the TNS dataset to",
+        default=os.path.join(FILE_DIR, "tns_public_objects.csv")
+    )
     args = p.parse_args()
 
     logging.basicConfig(
