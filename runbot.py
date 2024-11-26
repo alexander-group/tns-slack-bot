@@ -23,14 +23,22 @@ def main():
         "--outfile", "-o",
         required=False,
         help="The filepath to write the TNS dataset to",
-        default=os.path.join(FILE_DIR, "tns_public_objects.csv")
+        default="tns_public_objects.csv"
     )
+
+    p.add_argument(
+        "--log", "-l",
+        required=False,
+        help="The filepath to write the log to",
+        default="tns-slack-bot.log"
+    )
+    
     args = p.parse_args()
 
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',
-        filename=os.path.join(os.path.dirname(args.outfile), 'tns-slack-bot.log'),
+        filename=args.log,
         encoding='utf-8',
         level=logging.DEBUG
     )

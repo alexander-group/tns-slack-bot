@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source /home/nfranz/.bashrc
-python3 /home/nfranz/alexander-group/tns-slack-bot/runbot.py -dt $1 -o /home/nfranz/logs/tns_public_objects.csv
+python3 /home/nfranz/alexander-group/tns-slack-bot/runbot.py -dt $1 -l /home/nfranz/logs/tns-slack-bot.log
