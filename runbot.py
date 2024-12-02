@@ -32,6 +32,12 @@ def main():
         help="The filepath to write the log to",
         default="tns-slack-bot.log"
     )
+
+    p.add_argument(
+        "--test",
+        action=argparse.BooleanOptionalAction,
+        help="If true, just prints the message instead of sending it"
+    )
     
     args = p.parse_args()
 
@@ -53,10 +59,9 @@ def main():
     logger.info("Finished Initializing the Slack Bot!")
     logger.info("Attempting to send the slack message...")
     try:
-        bot.send_slack_message()
+        bot.send_slack_message(test=args.test)
     except Exception as e:
         logger.exception(e)
-    logger.info("Sent the slack message successfully!")
     
 if __name__ == "__main__":
     main()

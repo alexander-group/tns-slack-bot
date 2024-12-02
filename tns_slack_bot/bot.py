@@ -46,7 +46,7 @@ class TNSSlackBot(WebClient):
         self.daily_data = pd.read_csv(self.daily_data_path, skiprows=1)
 
         # generate the astronote search URL
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         dt = timedelta(days=self.dt.value)
         qdate = now-dt
         qdate_strfmt = f"{qdate.year}-{qdate.month}-{qdate.day}"
@@ -87,10 +87,12 @@ class TNSSlackBot(WebClient):
         astronotes = soup.find_all(class_="note")
         t = TNS_CLASSES_OF_INTEREST
         
-        new_astronotes = f"""
+        msg_hdr = f"""
 *New Astronotes of Potential Interest*
 *###########################################*
 """
+        new_astronotes = msg_hdr
+        
         tde_astronotes = []
         for a in astronotes:
             r = a.find(string="TDE")
@@ -102,7 +104,7 @@ class TNSSlackBot(WebClient):
             authors = a.find(class_="note-coauthors").get_text()
             title = a.find(class_="note-title").get_text()
             
-            new_astronotes += f"""
+            new_astronote_text = f"""
 
 >_Title_: {title}
 >_Authors_: {authors}
@@ -112,6 +114,16 @@ class TNSSlackBot(WebClient):
             note = requests.get(link, headers=hdr).content.decode()
             subsoup = BeautifulSoup(note, "lxml")
 
+            # get last modified date
+            note_post_date = subsoup.find(class_="note-date")
+            note_post_datetime = Time(note_post_date.get_text(), format="iso")
+            now = datetime.now(timezone.utc)
+            dt = timedelta(days=self.dt.value)
+            mindate = now-dt
+            if note_post_datetime < mindate: continue # skip this because it's too old
+
+            new_astronotes += new_astronote_text
+            
             tab = subsoup.find(class_="objects-table")
             df = pd.read_html(StringIO(str(tab)))[0]
 
@@ -160,7 +172,7 @@ class TNSSlackBot(WebClient):
 >\t_Redshift_: {redshift}
 >*******************************************"""
 
-        if len(tde_astronotes) == 0:
+        if len(tde_astronotes) == 0 or new_astronotes == msg_hdr:
             return ""
                 
         return new_astronotes
@@ -211,4 +223,4 @@ class TNSSlackBot(WebClient):
             return
 
         self.chat_postMessage(channel=chan, text=msg, username=uname)
-        
+        logger.info("Sent the slack message successfully!")
