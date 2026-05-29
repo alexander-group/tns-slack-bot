@@ -1,4 +1,5 @@
 #!/bin/bash
 
 source /home/nfranz/.bashrc
+micromamba activate
 python3 /home/nfranz/alexander-group/tns-slack-bot/runbot.py -dt $1 -l /home/nfranz/logs/tns-slack-bot.log

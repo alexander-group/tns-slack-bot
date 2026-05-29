@@ -30,18 +30,20 @@ class TNSSlackBot(WebClient):
 
         
         self.dt = dt*u.day
-        file_mod_date = os.path.getmtime(daily_data_path)
-        file_dt_s = time.time() - file_mod_date
-        file_dt_days = file_dt_s / (60*60*24)
-        if (
-                not os.path.exists(daily_data_path) or
-                file_dt_days > self.dt.value
-        ):
+        if not os.path.exists(daily_data_path):
             logger.info("Downloading new file...")
             self.daily_data_path = download_daily_csv(daily_data_path)
         else:
-            logger.info("File found and is recent enough to keep...")
-            self.daily_data_path = daily_data_path
+            file_mod_date = os.path.getmtime(daily_data_path)
+            file_dt_s = time.time() - file_mod_date
+            file_dt_days = file_dt_s / (60*60*24)
+
+            if file_dt_days > self.dt.value:
+                logger.info("File found but is too old, downloading an updated one!")
+                self.daily_data_path = download_daily_csv(daily_data_path)
+            else:
+                logger.info("File found and is recent enough to keep...")
+                self.daily_data_path = daily_data_path
             
         self.daily_data = pd.read_csv(self.daily_data_path, skiprows=1)
 
@@ -51,7 +53,7 @@ class TNSSlackBot(WebClient):
         qdate = now-dt
         qdate_strfmt = f"{qdate.year}-{qdate.month}-{qdate.day}"
         self.astronote_url = f"https://www.wis-tns.org/astronotes?&date_start%5Bdate%5D={qdate_strfmt}"
-        
+
         super().__init__(token=SLACK_BOT_TOKEN, **kwargs)
         
     def filter_daily_data(self):
@@ -71,8 +73,7 @@ class TNSSlackBot(WebClient):
             self.daily_data.type,
             TNS_CLASSES_OF_INTEREST
         )
-        
-        return self.daily_data[self.daily_data.isTDE * (self.daily_data.dt < self.dt)]
+        return self.daily_data[self.daily_data.isTDE * (self.daily_data.dt < self.dt.value)]
 
     def query_astronotes(self):
         """
@@ -99,8 +100,8 @@ class TNSSlackBot(WebClient):
             if r is None: continue
             tde_astronotes.append(r)
             
-            partial_link = a.find(class_="note-link").get("href")        
-            link = f"https://www.wis-tns.org{partial_link}"
+            link = a.find(class_="note-link").get("href")        
+            #link = f"https://www.wis-tns.org{partial_link}"
             authors = a.find(class_="note-coauthors").get_text()
             title = a.find(class_="note-title").get_text()
             
